@@ -4,7 +4,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
-import { Like, Repository } from "typeorm";
+import { Like, Not, Repository } from "typeorm";
 
 // export type User = any;
 
@@ -22,7 +22,14 @@ export class UsersService {
     return await this.user.findOne(userData);
   }
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
+    // console.log("createUserDto", createUserDto);
+    // return this.user.find({
+    //   where: {
+    //     username: Like(`%${"zs"}%`)
+    //   }
+    // });
+    // return;
     const data = new User();
     data.username = createUserDto.username;
     data.password = createUserDto.password;
@@ -30,7 +37,14 @@ export class UsersService {
     return this.user.save(data);
   }
 
-  findAll() {
+  async findAll() {
+    const dt = await this.user.find({
+      where: {
+        id: 3
+      }
+    });
+    console.log(dt);
+    return;
     return `This action returns all users`;
   }
 
@@ -39,6 +53,6 @@ export class UsersService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} user`;
+    return this.user.delete(id);
   }
 }
