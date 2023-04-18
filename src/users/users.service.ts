@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 
@@ -17,42 +17,53 @@ export interface UesrParams {
 export class UsersService {
   constructor(@InjectRepository(User) private readonly user: Repository<User>) {}
 
+  // 此处auth.service中登录调用(auth/login)
   async findOne(userData: any): Promise<User | undefined> {
-    console.log("userData", userData);
-    return await this.user.findOne(userData);
-  }
-
-  async create(createUserDto: CreateUserDto) {
-    // console.log("createUserDto", createUserDto);
-    // return this.user.find({
-    //   where: {
-    //     username: Like(`%${"zs"}%`)
-    //   }
-    // });
-    // return;
-    const data = new User();
-    data.username = createUserDto.username;
-    data.password = createUserDto.password;
-    data.json = createUserDto.json ?? "";
-    return this.user.save(data);
-  }
-
-  async findAll() {
-    const dt = await this.user.find({
+    return await this.user.findOne({
       where: {
-        id: 3
+        username: userData.username,
+        password: userData.password
       }
     });
-    console.log(dt);
-    return;
-    return `This action returns all users`;
   }
 
+  // 新建用户
+  async create(createUserDto: CreateUserDto) {
+    const data = new User();
+    const hasUser = await this.user.findOne({
+      where: { username: createUserDto.username }
+    });
+    if (!hasUser) {
+      data.username = createUserDto.username;
+      data.password = createUserDto.password;
+      data.json = createUserDto.json ?? "";
+      return this.user.save(data);
+    } else {
+      throw new UnauthorizedException({
+        message: "用户名已存在"
+      });
+    }
+  }
+
+  // 查询用户信息
+  async findUserInfo(userInfo: CreateUserDto) {
+    return userInfo;
+  }
+
+  // 更改用户信息
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    const updateInfo = {
+      username: updateUserDto.username,
+      password: updateUserDto.password,
+      json: updateUserDto.json
+    };
+    this.user.update(id, updateInfo);
+    return null;
   }
 
+  // 删除用户
   remove(id: number) {
-    return this.user.delete(id);
+    this.user.delete(id);
+    return null;
   }
 }

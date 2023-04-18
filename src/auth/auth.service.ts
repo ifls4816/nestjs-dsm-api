@@ -10,19 +10,18 @@ export class AuthService {
     const user = await this.usersService.findOne({ username, password });
     if (user && user.password === password) {
       const { password, ...result } = user;
-      console.log("password", password);
+      // console.log("password", password);
+      // console.log('result', result)
       return result;
     }
     return null;
   }
 
   async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
+    const payload = { ...user };
     const token = this.jwtService.sign(payload);
     return {
-      mesasge: "登录成功",
-      code: 0,
-      access_token: `Bearer ${token}`
+      accessToken: `Bearer ${token}`
     };
   }
 }

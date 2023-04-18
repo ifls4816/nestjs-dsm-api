@@ -18,13 +18,13 @@ export class User {
   password: string;
 
   @CreateDateColumn() // 自动生成时间戳
-  createTiem: Date;
+  createTime: Date;
 
   @Column({
     default: ""
   })
   remark: string;
 
-  @Column("simple-json")
+  @Column()
   json: string;
 }
