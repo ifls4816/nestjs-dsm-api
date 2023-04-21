@@ -4,11 +4,15 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JWTAuthGuard } from "../auth/local-auth.guard";
 import { Response } from "express";
+import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+@ApiTags("用户增删改查")
+@ApiBearerAuth()
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   // @UseGuards(LocalAuthGuard)
+  @ApiOperation({ summary: "新增用户", description: "username password" })
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
