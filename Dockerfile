@@ -7,9 +7,11 @@ WORKDIR /usr/src/app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
 # COPY package*.json ./
-COPY . /usr/src/app
+# COPY . /usr/src/app
+COPY package*.json ./
+COPY tsconfig.build.json ./
 
-RUN npm install pnpm -g
+RUN npm install -g pnpm --registry=https://registry.npm.taobao.org
 
 RUN pnpm install
 
@@ -20,6 +22,8 @@ RUN pnpm run build
 # Bundle app source
 COPY . .
 
+CMD npm run start:prod
+
 EXPOSE 4888
 
-CMD [ "node" ,"main" ] 
+# CMD [ "npm" ,"start" ] 
