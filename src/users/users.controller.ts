@@ -3,8 +3,9 @@ import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JWTAuthGuard } from "../auth/local-auth.guard";
-import { Response } from "express";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { UsersResponse } from "../users/types/User";
+
 @ApiTags("用户增删改查")
 @ApiBearerAuth()
 @Controller("users")
@@ -21,21 +22,21 @@ export class UsersController {
   // 根据token获取用户信息
   @UseGuards(JWTAuthGuard)
   @Get()
-  findAll(@Request() req: Response | any) {
+  findAll(@Request() req: UsersResponse) {
     return this.usersService.findUserInfo(req.user);
   }
 
   // 修改用户信息
   @UseGuards(JWTAuthGuard)
   @Patch()
-  update(@Request() req: Response | any, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(req.user.id, updateUserDto);
+  update(@Request() req: UsersResponse, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(req.user, updateUserDto);
   }
 
   // 删除用户信息
   @UseGuards(JWTAuthGuard)
   @Delete()
-  remove(@Request() req: Response | any) {
+  remove(@Request() req: UsersResponse) {
     return this.usersService.remove(req.user.id);
   }
 }

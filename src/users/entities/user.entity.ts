@@ -17,7 +17,7 @@ export class User {
     select: true, // 查询的时候 不返回此字段
     comment: "密码"
   })
-  password: string;
+  password?: string;
 
   @CreateDateColumn() // 自动生成时间戳
   createTime: Date;

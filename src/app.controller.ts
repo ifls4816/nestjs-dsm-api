@@ -2,6 +2,7 @@ import { Controller, Get, Post, Request, UseGuards } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { LocalAuthGuard } from "./auth/local-auth.guard";
 import { AuthService } from "./auth/auth.service";
+import { UsersResponse } from "./users/types/User";
 
 @Controller()
 export class AppController {
@@ -9,7 +10,7 @@ export class AppController {
 
   @UseGuards(LocalAuthGuard) // 不需要权限的守卫
   @Post("auth/login")
-  async login(@Request() req: any) {
+  async login(@Request() req: UsersResponse) {
     return this.authService.login(req.user);
   }
 

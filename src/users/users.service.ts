@@ -5,20 +5,14 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { Like, Not, Repository } from "typeorm";
-
-// export type User = any;
-
-export interface UesrParams {
-  username: string;
-  pass: string;
-}
+import { UesrParams } from "../users/types/User";
 
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(User) private readonly user: Repository<User>) {}
 
   // 此处auth.service中登录调用(auth/login)
-  async findOne(userData: any): Promise<User | undefined> {
+  async findOne(userData: UesrParams): Promise<User | undefined> {
     return await this.user.findOne({
       where: {
         username: userData.username,
@@ -51,12 +45,19 @@ export class UsersService {
   }
 
   // 更改用户信息
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(user: UpdateUserDto, updateUserDto: UpdateUserDto) {
     const updateInfo = {
-      username: updateUserDto.username,
-      password: updateUserDto.password,
-      json: updateUserDto.json
+      ...user,
+      ...updateUserDto
     };
+    const id = updateInfo.id;
+    delete updateInfo.id;
+    delete updateInfo.username;
+    // TODO:
+    // delete updateInfo.iat;
+    // delete updateInfo.exp;
+    console.log(id);
+    console.log("updateInfo", updateInfo);
     this.user.update(id, updateInfo);
     return null;
   }

@@ -1,4 +1,4 @@
 export const jwtConstants = {
   secret: "ifls4816",
-  expiresIn: "600s",
+  expiresIn: "604800s" // 7天
 };

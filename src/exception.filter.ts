@@ -2,7 +2,7 @@
  * @Description: 异常过滤器
  * @Author: IFLS
  * @Date: 2023-04-17 18:03:27
- * @LastEditTime: 2023-04-17 18:52:42
+ * @LastEditTime: 2023-04-28 16:09:29
  */
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException } from "@nestjs/common";
 import { Request, Response } from "express";
@@ -15,7 +15,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const httpStatus = exception.getStatus();
     const data: any = exception.getResponse();
-    console.log("异常过滤器已触发...", request.url);
+    const { url, method, query, body } = request;
+    console.log("nestjs err:", { url, query, body, method, data });
     response.status(httpStatus).json({
       status: httpStatus,
       success: false,
