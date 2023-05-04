@@ -10,4 +10,7 @@ export class CreateUserDto {
   password: string;
   remark: string;
   json: string;
+  code?: string;
+  iat?: number;
+  exp?: number;
 }

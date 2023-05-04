@@ -1,7 +1,7 @@
-import { Response } from "express";
+import { Request } from "express";
 import { CreateUserDto } from "../dto/create-user.dto";
 
-export interface UsersResponse extends Response {
+export interface UserRequest extends Request {
   user: CreateUserDto;
 }
 

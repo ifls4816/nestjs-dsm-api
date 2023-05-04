@@ -1,42 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Delete, UseGuards, Request } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Delete, UseGuards, Req, Res } from "@nestjs/common";
+import { Response, Request } from "express";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JWTAuthGuard } from "../auth/local-auth.guard";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
-import { UsersResponse } from "../users/types/User";
+import { UserRequest } from "../users/types/User";
 
 @ApiTags("用户增删改查")
 @ApiBearerAuth()
-@Controller("users")
+@Controller("user")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get("captcha")
+  createCaptcha(@Req() req: Request, @Res() res: Response) {
+    return this.usersService.getCaptcha(req, res);
+  }
+
   // @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: "新增用户", description: "username password" })
+  // 新增用户
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(@Req() req: Request, @Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(req, createUserDto);
   }
 
   // 根据token获取用户信息
   @UseGuards(JWTAuthGuard)
   @Get()
-  findAll(@Request() req: UsersResponse) {
+  findAll(@Req() req: UserRequest) {
     return this.usersService.findUserInfo(req.user);
   }
 
   // 修改用户信息
   @UseGuards(JWTAuthGuard)
   @Patch()
-  update(@Request() req: UsersResponse, @Body() updateUserDto: UpdateUserDto) {
+  update(@Req() req: UserRequest, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(req.user, updateUserDto);
   }
 
   // 删除用户信息
   @UseGuards(JWTAuthGuard)
   @Delete()
-  remove(@Request() req: UsersResponse) {
+  remove(@Req() req: UserRequest) {
     return this.usersService.remove(req.user.id);
   }
 }

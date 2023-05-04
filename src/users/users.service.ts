@@ -1,12 +1,12 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Response, Request } from "express";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
-import { Like, Not, Repository } from "typeorm";
+import { /**Like, Not, */ Repository } from "typeorm";
 import { UesrParams } from "../users/types/User";
-
+import { drawCaptcha } from "../common/index";
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(User) private readonly user: Repository<User>) {}
@@ -21,8 +21,29 @@ export class UsersService {
     });
   }
 
+  // 获取验证码
+  async getCaptcha(req: Request, res: Response) {
+    const captcha = drawCaptcha();
+    (req.session as any).code = captcha.text;
+    res.type("image/svg+xml");
+    res.send(captcha.data);
+  }
+
   // 新建用户
-  async create(createUserDto: CreateUserDto) {
+  async create(req: Request, createUserDto: CreateUserDto) {
+    const err = (message: string) => {
+      throw new UnauthorizedException({ message });
+    };
+    if (!(req.session as any).code) {
+      err("session验证码错误");
+    }
+    if (!createUserDto.code) {
+      err("请输入验证码");
+    }
+    const code: string = (req.session as any).code?.toLocaleLowerCase();
+    if (createUserDto?.code !== code) {
+      err("验证码错误");
+    }
     const data = new User();
     const hasUser = await this.user.findOne({
       where: { username: createUserDto.username }
@@ -33,9 +54,7 @@ export class UsersService {
       data.json = createUserDto.json ?? "";
       return this.user.save(data);
     } else {
-      throw new UnauthorizedException({
-        message: "用户名已存在"
-      });
+      err("用户名已存在");
     }
   }
 
@@ -53,11 +72,8 @@ export class UsersService {
     const id = updateInfo.id;
     delete updateInfo.id;
     delete updateInfo.username;
-    // TODO:
-    // delete updateInfo.iat;
-    // delete updateInfo.exp;
-    console.log(id);
-    console.log("updateInfo", updateInfo);
+    delete updateInfo.iat;
+    delete updateInfo.exp;
     this.user.update(id, updateInfo);
     return null;
   }

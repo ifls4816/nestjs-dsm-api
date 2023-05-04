@@ -1,8 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
-import { CreateUserDto } from "../users/dto/create-user.dto";
+// import { CreateUserDto } from "../users/dto/create-user.dto";
 import { User } from "src/users/entities/user.entity";
+import { UserRequest } from "../users/types/User";
+import { CreateUserDto } from "../users/dto/create-user.dto";
 
 @Injectable()
 export class AuthService {
@@ -18,9 +20,23 @@ export class AuthService {
     return null;
   }
 
-  async login(user: CreateUserDto) {
-    const payload = { ...user };
-    console.log(payload);
+  async login(req: UserRequest, createUserDto: CreateUserDto) {
+    const err = (message: string) => {
+      throw new UnauthorizedException({ message });
+    };
+    if (!(req.session as any).code) {
+      err("session验证码错误");
+    }
+    if (!createUserDto.code) {
+      err("请输入验证码");
+    }
+    const code: string = (req.session as any).code?.toLocaleLowerCase();
+    console.log(createUserDto);
+    if (createUserDto?.code !== code) {
+      err("验证码错误");
+    }
+
+    const payload = { ...req.user };
     const token = this.jwtService.sign(payload);
     return {
       accessToken: `Bearer ${token}`
