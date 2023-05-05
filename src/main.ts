@@ -29,7 +29,9 @@ async function bootstrap() {
     session({
       secret: jwtConstants.secret,
       name: "ifls.session",
-      rolling: true // 在每次请求时强行设置 cookie，这将重置 cookie 过期时间(默认:false)
+      rolling: true, // 在每次请求时强行设置 cookie，这将重置 cookie 过期时间(默认:false)
+      resave: false,
+      saveUninitialized: true
     })
   );
   console.log("port:", 4888);
